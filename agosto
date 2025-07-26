@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌈 Mi Agenda Súper Interactiva</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #9333ea 0%, #ec4899 50%, #fb923c 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-card .icon {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 8px;
+            color: #fcd34d;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-card .label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .card h3 {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .day-button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: left;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .day-button.active {
+            background: white;
+            color: #374151;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-button:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .day-button:not(.active):hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .day-button .emoji {
+            font-size: 2rem;
+            margin-right: 12px;
+        }
+
+        .day-button .info {
+            flex: 1;
+        }
+
+        .day-button .title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .day-button .subtitle {
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+
+        .pomodoro-timer {
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .timer-display.work {
+            color: #fca5a5;
+        }
+
+        .timer-display.break {
+            color: #86efac;
+        }
+
+        .timer-status {
+            color: white;
+            margin-bottom: 16px;
+            font-size: 1.125rem;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .timer-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .timer-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .current-day {
+            color: white;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .day-title {
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .day-progress {
+            text-align: right;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+            height: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s ease-out;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .task-item {
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item.completed {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: #4ade80;
+        }
+
+        .task-item:not(.completed) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .task-item:not(.completed):hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .task-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .task-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .task-info .time {
+            color: white;
+            font-weight: 600;
+        }
+
+        .task-info .activity {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            color: white;
+        }
+
+        .task-info .activity.completed {
+            color: #bbf7d0;
+        }
+
+        .task-points {
+            text-align: right;
+        }
+
+        .task-points .points {
+            color: #fcd34d;
+            font-weight: bold;
+        }
+
+        .task-points .label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .completion-message {
+            margin-top: 24px;
+            padding: 16px;
+            background: linear-gradient(to right, #fbbf24, #f97316);
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+        }
+
+        .completion-message .emoji {
+            font-size: 2rem;
+        }
+
+        .completion-message .title {
+            font-weight: bold;
+            margin: 8px 0 4px;
+        }
+
+        .completion-message .subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .settings-section {
+            margin-top: 24px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-item label {
+            color: white;
+            font-weight: 600;
+        }
+
+        .setting-item input {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .setting-item input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .add-day-section {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .task-form {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr 100px;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .task-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌈 MI AGENDA SÚPER INTERACTIVA 🌈</h1>
+            <p>¡Vamos a arrasar con el estudio!</p>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i data-lucide="trophy" class="icon"></i>
+                <div class="value" id="points-display">0</div>
+                <div class="label">Puntos</div>
+            </div>
+            
+            <div class="stat-card">
+                <i data-lucide="star" class="icon"></i>
+                <div class="value" id="streak-display">0</div>
+                <div class="label">Racha</div>
+            </div>
+            
+            <div class="stat-card">
+                <i data-lucide="target" class="icon"></i>
+                <div class="value" id="progress-display">0%</div>
+                <div class="label">Progreso Hoy</div>
+            </div>
+            
+            <div class="stat-card">
+                <i data-lucide="trending-up" class="icon"></i>
+                <div class="value" id="week-display">Semana 1</div>
+                <div class="label">Actual</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Day Navigation -->
+                <div class="card">
+                    <h3>
+                        <i data-lucide="calendar"></i>
+                        Seleccionar Día
+                    </h3>
+                    <div id="day-navigation"></div>
+                </div>
+
+                <!-- Pomodoro Timer -->
+                <div class="card">
+                    <h3>
+                        <i data-lucide="clock"></i>
+                        Timer Pomodoro
+                    </h3>
+                    
+                    <div class="pomodoro-timer">
+                        <div id="timer-display" class="timer-display work">30:00</div>
+                        <div id="timer-status" class="timer-status">🍅 Trabajando</div>
+                        
+                        <div class="timer-controls">
+                            <button id="play-pause-btn" class="timer-button">
+                                <i data-lucide="play"></i>
+                            </button>
+                            <button id="reset-btn" class="timer-button">
+                                <i data-lucide="rotate-ccw"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="settings-section">
+                        <h4 style="color: white; margin-bottom: 12px;">⚙️ Configuración Timer</h4>
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <label>Tiempo Trabajo (min)</label>
+                                <input type="number" id="work-time" value="30" min="1" max="60">
+                            </div>
+                            <div class="setting-item">
+                                <label>Tiempo Descanso (min)</label>
+                                <input type="number" id="break-time" value="5" min="1" max="30">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Day Section -->
+                <div class="card">
+                    <h3>
+                        <i data-lucide="plus-circle"></i>
+                        Añadir Nuevo Día
+                    </h3>
+                    
+                    <div class="add-day-section">
+                        <div class="form-grid">
+                            <div class="setting-item">
+                                <label>ID del día</label>
+                                <input type="text" id="new-day-id" placeholder="ej: miercoles30">
+                            </div>
+                            <div class="setting-item">
+                                <label>Título</label>
+                                <input type="text" id="new-day-title" placeholder="ej: MIÉRCOLES 30 JULIO">
+                            </div>
+                            <div class="setting-item">
+                                <label>Emoji</label>
+                                <input type="text" id="new-day-emoji" placeholder="ej: 🔥" maxlength="2">
+                            </div>
+                        </div>
+                        
+                        <h4 style="color: white; margin: 16px 0 8px;">Tareas:</h4>
+                        <div id="new-tasks-container"></div>
+                        
+                        <div style="display: flex; gap: 8px; margin-top: 16px;">
+                            <button class="btn btn-secondary" onclick="addNewTaskRow()">+ Añadir Tarea</button>
+                            <button class="btn btn-primary" onclick="saveNewDay()">Guardar Día</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Day Tasks -->
+            <div class="card">
+                <div class="day-header">
+                    <h2 id="current-day-title" class="day-title">
+                        <span id="current-day-emoji">🌅</span>
+                        SÁBADO 26 JULIO
+                    </h2>
+                    <div class="day-progress">
+                        <div style="font-size: 0.875rem; opacity: 0.8;">Progreso</div>
+                        <div id="current-progress" style="font-size: 2rem; font-weight: bold;">0%</div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+
+                <!-- Tasks List -->
+                <div id="tasks-container" class="task-list"></div>
+
+                <!-- Completion Message -->
+                <div id="completion-message" class="completion-message" style="display: none;">
+                    <div class="emoji">🎉</div>
+                    <div class="title">¡DÍA COMPLETADO!</div>
+                    <div class="subtitle">¡Eres increíble! 🚀</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado de la aplicación
+        let appState = {
+            currentDay: 'sabado26',
+            completedTasks: {},
+            pomodoroTime: 30 * 60,
+            isRunning: false,
+            pomodoroType: 'work',
+            points: 0,
+            streak: 0,
+            workTime: 30,
+            breakTime: 5,
+            currentWeek: 1
+        };
+
+        // Datos de la agenda (modificable)
+        let agendaData = {
+            semana1: {
+                title: "SEMANA 1: 26 julio - 1 agosto",
+                objetivo: "Recuperar 2 clases atrasadas + mantener rutina",
+                days: {
+                    sabado26: {
+                        title: "SÁBADO 26 JULIO",
+                        emoji: "🌅",
+                        color: "from-red-400 to-pink-400",
+                        tasks: [
+                            { id: 's26-1', time: '8:00-10:30', activity: 'Clase atrasada 1 (2.5h)', type: 'clase', points: 25 },
+                            { id: 's26-2', time: '10:30-12:00', activity: 'Tests diarios (6) + Ankis (30)', type: 'daily', points: 15 },
+                            { id: 's26-3', time: '12:00-14:00', activity: 'Continuación clase 1 (2h)', type: 'clase', points: 20 },
+                            { id: 's26-4', time: '15:00-17:00', activity: 'Práctica coche (2h)', type: 'extra', points: 10 },
+                            { id: 's26-5', time: '17:00-19:00', activity: 'Finalizar clase 1 + ankis', type: 'repaso', points: 20 }
+                        ]
+                    },
+                    domingo27: {
+                        title: "DOMINGO 27 JULIO",
+                        emoji: "☀️",
+                        color: "from-teal-400 to-cyan-400",
+                        tasks: [
+                            { id: 'd27-1', time: '8:00-10:30', activity: 'Clase atrasada 2 (2.5h)', type: 'clase', points: 25 },
+                            { id: 'd27-2', time: '10:30-12:00', activity: 'Tests diarios (6) + Ankis (30)', type: 'daily', points: 15 },
+                            { id: 'd27-3', time: '12:00-14:00', activity: 'Continuación clase 2 (2h)', type: 'clase', points: 20 },
+                            { id: 'd27-4', time: '15:00-17:00', activity: 'Repaso clase 1 (2h)', type: 'repaso', points: 15 },
+                            { id: 'd27-5', time: '17:00-19:00', activity: 'Finalizar clase 2 + ankis', type: 'repaso', points: 20 }
+                        ]
+                    },
+                    lunes28: {
+                        title: "LUNES 28 JULIO - DÍA DE PLAYA",
+                        emoji: "🏖️",
+                        color: "from-blue-400 to-indigo-400",
+                        tasks: [
+                            { id: 'l28-1', time: 'TODO EL DÍA', activity: '¡DESCANSO TOTAL - Te lo mereces!', type: 'descanso', points: 50 }
+                        ]
+                    },
+                    martes29: {
+                        title: "MARTES 29 JULIO",
+                        emoji: "💪",
+                        color: "from-green-400 to-emerald-400",
+                        tasks: [
+                            { id: 'm29-1', time: '8:00-10:00', activity: 'Repaso programado', type: 'repaso', points: 15 },
+                            { id: 'm29-2', time: '10:00-12:00', activity: 'Tests diarios (6) + Ankis (60)', type: 'daily', points: 20 },
+                            { id: 'm29-3', time: '12:00-14:00', activity: 'Clase atrasada 3 - parte 1 (2h)', type: 'clase', points: 20 },
+                            { id: 'm29-4', time: '15:00-17:00', activity: 'Práctica coche (2h)', type: 'extra', points: 10 },
+                            { id: 'm29-5', time: '17:00-19:00', activity: 'Repaso clase 1 (2h)', type: 'repaso', points: 15 }
+                        ]
+                    }
+                }
+            }
+        };
+
+        // Timer
+        let timerInterval = null;
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimer() {
+            const timerDisplay = document.getElementById('timer-display');
+            const timerStatus = document.getElementById('timer-status');
+            
+            timerDisplay.textContent = formatTime(appState.pomodoroTime);
+            timerDisplay.className = `timer-display ${appState.pomodoroType}`;
+            timerStatus.textContent = appState.pomodoroType === 'work' ? '🍅 Trabajando' : '☕ Descansando';
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                if (appState.pomodoroTime > 0) {
+                    appState.pomodoroTime--;
+                    updateTimer();
+                } else {
+                    // Timer finished
+                    appState.isRunning = false;
+                    if (appState.pomodoroType === 'work') {
+                        appState.pomodoroType = 'break';
+                        appState.pomodoroTime = appState.breakTime * 60;
+                    } else {
+                        appState.pomodoroType = 'work';
+                        appState.pomodoroTime = appState.workTime * 60;
+                    }
+                    updateTimer();
+                    updatePlayPauseButton();
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        function toggleTimer() {
+            appState.isRunning = !appState.isRunning;
+            if (appState.isRunning) {
+                startTimer();
+            } else {
+                clearInterval(timerInterval);
+            }
+            updatePlayPauseButton();
+        }
+
+        function resetTimer() {
+            appState.isRunning = false;
+            appState.pomodoroTime = appState.pomodoroType === 'work' ? appState.workTime * 60 : appState.breakTime * 60;
+            clearInterval(timerInterval);
+            updateTimer();
+            updatePlayPauseButton();
+        }
+
+        function updatePlayPauseButton() {
+            const btn = document.getElementById('play-pause-btn');
+            btn.innerHTML = appState.isRunning ? '<i data-lucide="pause"></i>' : '<i data-lucide="play"></i>';
+            lucide.createIcons();
+        }
+
+        function updateTimerSettings() {
+            const workTime = parseInt(document.getElementById('work-time').value);
+            const breakTime = parseInt(document.getElementById('break-time').value);
+            
+            appState.workTime = workTime;
+            appState.breakTime = breakTime;
+            
+            if (!appState.isRunning) {
+                appState.pomodoroTime = appState.pomodoroType === 'work' ? workTime * 60 : breakTime * 60;
+                updateTimer();
+            }
+        }
+
+        // Tasks Management
+        function toggleTask(taskId, taskPoints) {
+            const isCompleted = appState.completedTasks[taskId];
+            appState.completedTasks[taskId] = !isCompleted;
+            
+            if (!isCompleted) {
+                appState.points += taskPoints;
+                appState.streak += 1;
+            } else {
+                appState.points = Math.max(0, appState.points - taskPoints);
+                appState.streak = Math.max(0, appState.streak - 1);
+            }
+            
+            updateDisplay();
+        }
+
+        function getCurrentDayData() {
+            return agendaData.semana1.days[appState.currentDay] || agendaData.semana1.days.sabado26;
+        }
+
+        function getProgressPercentage() {
+            const currentDayData = getCurrentDayData();
+            if (!currentDayData) return 0;
+            
+            const totalTasks = currentDayData.tasks.length;
+            const completedCount = currentDayData.tasks.filter(task => appState.completedTasks[task.id]).length;
+            return totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+        }
+
+        function renderDayNavigation() {
+            const container = document.getElementById('day-navigation');
+            container.innerHTML = '';
+            
+            Object.entries(agendaData.semana1.days).forEach(([dayKey, dayData]) => {
+                const button = document.createElement('button');
+                button.className = `day-button ${appState.currentDay === dayKey ? 'active' : ''}`;
+                button.onclick = () => {
+                    appState.currentDay = dayKey;
+                    updateDisplay();
+                };
+                
+                button.innerHTML = `
+                    <span class="emoji">${dayData.emoji}</span>
+                    <div class="info">
+                        <div class="title">${dayData.title}</div>
+                        <div class="subtitle">${dayData.tasks.length} tareas</div>
+                    </div>
+                `;
+                
+                container.appendChild(button);
+            });
+        }
+
+        function renderCurrentDay() {
+            const currentDayData = getCurrentDayData();
+            const tasksContainer = document.getElementById('tasks-container');
+            const progress = getProgressPercentage();
+            
+            // Update header
+            document.getElementById('current-day-emoji').textContent = currentDayData.emoji;
+            document.getElementById('current-day-title').innerHTML = `
+                <span id="current-day-emoji">${currentDayData.emoji}</span>
+                ${currentDayData.title}
+            `;
+            document.getElementById('current-progress').textContent = `${Math.round(progress)}%`;
+            
+            // Update progress bar
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+            
+            // Render tasks
+            tasksContainer.innerHTML = '';
+            currentDayData.tasks.forEach(task => {
+                const isCompleted = appState.completedTasks[task.id];
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item ${isCompleted ? 'completed' : ''}`;
+                taskElement.onclick = () => toggleTask(task.id, task.points);
+                
+                taskElement.innerHTML = `
+                    <div class="task-content">
+                        <i data-lucide="${isCompleted ? 'check-circle' : 'circle'}" class="task-icon" style="color: ${isCompleted ? '#4ade80' : 'rgba(255,255,255,0.6)'}"></i>
+                        <div class="task-info">
+                            <div class="time">${task.time}</div>
+                            <div class="activity ${isCompleted ? 'completed' : ''}">${task.activity}</div>
+                        </div>
+                    </div>
+                    <div class="task-points">
+                        <div class="points">+${task.points}</div>
+                        <div class="label">puntos</div>
+                    </div>
+                `;
+                
+                tasksContainer.appendChild(taskElement);
+            });
+            
+            // Show completion message
+            const completionMessage = document.getElementById('completion-message');
+            completionMessage.style.display = progress === 100 ? 'block' : 'none';
+        }
+
+        function updateStats() {
+            const progress = getProgressPercentage();
+            document.getElementById('points-display').textContent = appState.points;
+            document.getElementById('streak-display').textContent = appState.streak;
+            document.getElementById('progress-display').textContent = `${Math.round(progress)}%`;
+            document.getElementById('week-display').textContent = `Semana ${appState.currentWeek}`;
+        }
+
+        function updateDisplay() {
+            renderDayNavigation();
+            renderCurrentDay();
+            updateStats();
+            lucide.createIcons();
+        }
+
+        // Add new day functionality
+        function addNewTaskRow() {
+            const container = document.getElementById('new-tasks-container');
+            const taskRow = document.createElement('div');
+            taskRow.className = 'task-form';
+            
+            taskRow.innerHTML = `
+                <input type="text" placeholder="8:00-10:00" class="task-time">
+                <input type="text" placeholder="Descripción de la tarea" class="task-activity">
+                <input type="number" placeholder="20" min="1" max="100" class="task-points">
+                <button type="button" class="btn btn-secondary" onclick="this.parentElement.remove()" style="padding: 8px;">🗑️</button>
+            `;
+            
+            container.appendChild(taskRow);
+        }
+
+        function saveNewDay() {
+            const dayId = document.getElementById('new-day-id').value.trim();
+            const dayTitle = document.getElementById('new-day-title').value.trim();
+            const dayEmoji = document.getElementById('new-day-emoji').value.trim();
+            
+            if (!dayId || !dayTitle || !dayEmoji) {
+                alert('Por favor, completa todos los campos del día');
+                return;
+            }
+            
+            if (agendaData.semana1.days[dayId]) {
+                alert('Ya existe un día con ese ID');
+                return;
+            }
+            
+            const taskRows = document.querySelectorAll('#new-tasks-container .task-form');
+            const tasks = [];
+            
+            taskRows.forEach((row, index) => {
+                const time = row.querySelector('.task-time').value.trim();
+                const activity = row.querySelector('.task-activity').value.trim();
+                const points = parseInt(row.querySelector('.task-points').value) || 10;
+                
+                if (time && activity) {
+                    tasks.push({
+                        id: `${dayId}-${index + 1}`,
+                        time: time,
+                        activity: activity,
+                        type: 'custom',
+                        points: points
+                    });
+                }
+            });
+            
+            if (tasks.length === 0) {
+                alert('Añade al menos una tarea');
+                return;
+            }
+            
+            // Add new day to agenda
+            agendaData.semana1.days[dayId] = {
+                title: dayTitle,
+                emoji: dayEmoji,
+                color: "from-purple-400 to-blue-400",
+                tasks: tasks
+            };
+            
+            // Clear form
+            document.getElementById('new-day-id').value = '';
+            document.getElementById('new-day-title').value = '';
+            document.getElementById('new-day-emoji').value = '';
+            document.getElementById('new-tasks-container').innerHTML = '';
+            
+            // Update display
+            updateDisplay();
+            
+            alert('¡Día añadido exitosamente! 🎉');
+        }
+
+        // Data persistence
+        function saveData() {
+            const dataToSave = {
+                appState: appState,
+                agendaData: agendaData
+            };
+            
+            // Create downloadable file
+            const dataStr = JSON.stringify(dataToSave, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'mi-agenda-data.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function loadData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    appState = data.appState || appState;
+                    agendaData = data.agendaData || agendaData;
+                    
+                    // Update timer settings inputs
+                    document.getElementById('work-time').value = appState.workTime;
+                    document.getElementById('break-time').value = appState.breakTime;
+                    
+                    updateDisplay();
+                    updateTimer();
+                    
+                    alert('¡Datos cargados exitosamente! 🎉');
+                } catch (error) {
+                    alert('Error al cargar el archivo. Asegúrate de que sea un archivo JSON válido.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize
+            updateDisplay();
+            updateTimer();
+            updatePlayPauseButton();
+            
+            // Add initial task row for new day form
+            addNewTaskRow();
+            
+            // Timer controls
+            document.getElementById('play-pause-btn').onclick = toggleTimer;
+            document.getElementById('reset-btn').onclick = resetTimer;
+            
+            // Timer settings
+            document.getElementById('work-time').onchange = updateTimerSettings;
+            document.getElementById('break-time').onchange = updateTimerSettings;
+            
+            // Add export/import buttons to settings
+            const settingsSection = document.querySelector('.settings-section');
+            const exportImportDiv = document.createElement('div');
+            exportImportDiv.style.marginTop = '16px';
+            exportImportDiv.innerHTML = `
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="saveData()">📥 Exportar Datos</button>
+                    <label class="btn btn-secondary" style="cursor: pointer;">
+                        📤 Importar Datos
+                        <input type="file" accept=".json" onchange="loadData(event)" style="display: none;">
+                    </label>
+                </div>
+            `;
+            settingsSection.appendChild(exportImportDiv);
+            
+            // Initialize Lucide icons
+            lucide.createIcons();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                toggleTimer();
+            }
+            if (e.code === 'Escape') {
+                resetTimer();
+            }
+        });
+
+        // Auto-save state periodically
+        setInterval(() => {
+            try {
+                localStorage.setItem('agenda-state', JSON.stringify({
+                    appState: appState,
+                    agendaData: agendaData
+                }));
+            } catch (e) {
+                // Silent fail if localStorage is not available
+            }
+        }, 30000); // Save every 30 seconds
+
+        // Load state on startup
+        try {
+            const savedData = localStorage.getItem('agenda-state');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                if (data.appState) {
+                    appState = { ...appState, ...data.appState };
+                }
+                if (data.agendaData) {
+                    agendaData = { ...agendaData, ...data.agendaData };
+                }
+            }
+        } catch (e) {
+            // Silent fail if localStorage is not available or data is corrupted
+        }
+    </script>
+</body>
+</html>
